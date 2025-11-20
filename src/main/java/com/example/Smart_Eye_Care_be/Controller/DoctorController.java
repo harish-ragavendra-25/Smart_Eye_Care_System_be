@@ -1,5 +1,7 @@
 package com.example.Smart_Eye_Care_be.Controller;
 
+import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,6 +33,11 @@ public class DoctorController {
     @GetMapping("/{id}")
     public DoctorResponseDto get(@PathVariable Long id) {
         return doctorService.getDoctor(id);
+    }
+
+    @GetMapping("/")
+    public List<DoctorResponseDto> getAll() {
+        return doctorService.getAllDoctors();
     }
 
     @PutMapping("/{id}")

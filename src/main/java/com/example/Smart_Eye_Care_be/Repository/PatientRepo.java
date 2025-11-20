@@ -7,4 +7,5 @@ import com.example.Smart_Eye_Care_be.Models.PatientModel;
 
 @Repository
 public interface PatientRepo extends JpaRepository<PatientModel,Long> {
+    boolean existsByUser_UserId(Long userId);
 }

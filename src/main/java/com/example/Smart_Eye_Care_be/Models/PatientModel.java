@@ -31,7 +31,7 @@ public class PatientModel {
 
     private String firstName;
     private String lastName;
-    private LocalDate DateOfBirth;
+    private String DateOfBirth;
     private String contactNumber;
     private String address;
 

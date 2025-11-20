@@ -1,12 +1,15 @@
 package com.example.Smart_Eye_Care_be.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.example.Smart_Eye_Care_be.Dtos.DoctorRequestDto;
 import com.example.Smart_Eye_Care_be.Dtos.DoctorResponseDto;
+import com.example.Smart_Eye_Care_be.Dtos.UserResponseDto;
 import com.example.Smart_Eye_Care_be.Models.DoctorModel;
 import com.example.Smart_Eye_Care_be.Models.UserModel;
 import com.example.Smart_Eye_Care_be.Repository.DoctorRepo;
@@ -62,6 +65,13 @@ public class DoctorService {
         DoctorModel doc = doctorRepo.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + id));
         return mapToResponse(doc);
+    }
+
+    public List<DoctorResponseDto> getAllDoctors() {
+        return doctorRepo.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Transactional
