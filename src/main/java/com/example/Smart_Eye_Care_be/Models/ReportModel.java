@@ -27,11 +27,11 @@ public class ReportModel {
 
     @ManyToOne
     @JoinColumn(name = "patientId",nullable=false)
-    private PatientModel patientId;
+    private PatientModel patient;
 
     @ManyToOne
     @JoinColumn(name = "doctorId",nullable=false)
-    private DoctorModel doctorId;
+    private DoctorModel doctor;
 
     @Lob
     private String imageUrl;
