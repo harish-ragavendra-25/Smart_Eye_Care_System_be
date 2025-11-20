@@ -7,7 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,21 +18,26 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="Doctor")
-public class DoctorModel {
+@Table(name = "reports")
+public class ReportModel {
     
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private Long doctorId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long reportId;
 
-    @OneToOne
-    @JoinColumn(name="userId",nullable=false,unique=true)
-    private UserModel userId;
+    @ManyToOne
+    @JoinColumn(name = "patientId",nullable=false)
+    private PatientModel patientId;
 
-    private String firstName;
-    private String lastName;
-    private String specialization;
-    private String contactNumber;
+    @ManyToOne
+    @JoinColumn(name = "doctorId",nullable=false)
+    private DoctorModel doctorId;
+
+    @Lob
+    private String imageUrl;
+
+    @Lob
+    private String doctorPrescription;
 
     private LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt = LocalDateTime.now();
