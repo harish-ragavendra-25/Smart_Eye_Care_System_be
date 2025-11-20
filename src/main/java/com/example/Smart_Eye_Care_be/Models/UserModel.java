@@ -42,9 +42,9 @@ public class UserModel {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public enum Role{
-        Admin,
-        Doctor,
-        Patient
+        ADMIN,
+        DOCTOR,
+        PATIENT
     }
     
 }
