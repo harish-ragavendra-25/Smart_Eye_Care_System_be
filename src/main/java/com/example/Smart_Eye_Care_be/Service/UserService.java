@@ -102,9 +102,9 @@ public class UserService {
         if (req.getEmail() != null && !req.getEmail().isBlank()) {
             validateEmail(req.getEmail());
 
-            if (!req.getEmail().equals(existing.getEmail()) && userRepo.existsByEmail(req.getEmail())) {
-                throw new IllegalArgumentException("Email already exists: " + req.getEmail());
-            }
+        if (userRepo.existsByEmailAndUserIdNot(req.getEmail(), id)) {
+            throw new IllegalArgumentException("Email already exists: " + req.getEmail());
+        }
 
             existing.setEmail(req.getEmail());
         }
@@ -143,5 +143,4 @@ public class UserService {
         userRepo.delete(user);
         return deletedUserName + " successfully deleted";
     }
-    
 }
