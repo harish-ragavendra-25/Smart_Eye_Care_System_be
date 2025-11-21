@@ -27,11 +27,11 @@ public class PatientModel {
 
     @OneToOne
     @JoinColumn(name = "userId",nullable=false,unique=true)
-    private UserModel userId;
+    private UserModel user;
 
     private String firstName;
     private String lastName;
-    private LocalDate DateOfBirth;
+    private String DateOfBirth;
     private String contactNumber;
     private String address;
 
