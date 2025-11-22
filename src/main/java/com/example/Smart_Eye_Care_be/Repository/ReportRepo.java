@@ -10,4 +10,6 @@ import com.example.Smart_Eye_Care_be.Models.ReportModel;
 @Repository
 public interface ReportRepo extends JpaRepository<ReportModel, Long> {
     List<ReportModel> findByPatient_PatientIdAndDoctor_DoctorId(Long patientId, Long doctorId);
+    List<ReportModel> findByPatient_PatientId(Long patientId);
+    List<ReportModel> findByDoctor_DoctorId(Long doctorId);
 }

@@ -142,12 +142,11 @@ public class ReportService {
         return reportRepo.findByPatient_PatientIdAndDoctor_DoctorId(patientId, doctorId);
     }
 
-    // public List<ReportModel> getReportsByPatient(Long patientId) {
-    //     return reportRepo.findByPatient_PatientId(patientId);
-    // }
+    public List<ReportModel> getReportsByPatient(Long patientId) {
+        return reportRepo.findByPatient_PatientId(patientId);
+    }
 
-    // public List<ReportModel> getReportsByDoctor(Long doctorId) {
-    //     return reportRepo.findByDoctor_DoctorId(doctorId);
-    // }
-
+    public List<ReportModel> getReportsByDoctor(Long doctorId) {
+        return reportRepo.findByDoctor_DoctorId(doctorId);
+    }
 }

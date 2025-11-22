@@ -44,8 +44,19 @@ public class ReportController {
             @PathVariable Long doctorId) {
         return reportService.getReportsByPatientAndDoctor(patientId, doctorId);
     }
-    
 
+    // Getting List of Report by using Patient Id
+    @GetMapping("/byPatient/{patientId}")
+    public List<ReportModel> getReportsByPatient(@PathVariable Long patientId) {
+        return reportService.getReportsByPatient(patientId);
+    }
+
+    // Getting List of Report by using Doctor Id
+    @GetMapping("/byDoctor/{doctorId}")
+    public List<ReportModel> getReportsByDoctor(@PathVariable Long doctorId) {
+        return reportService.getReportsByDoctor(doctorId);
+    }
+    
     @GetMapping("/{id}")
     public ReportModel getReport(@PathVariable Long id) {
         return reportService.getReportById(id);
