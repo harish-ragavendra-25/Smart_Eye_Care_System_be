@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 
 import com.example.Smart_Eye_Care_be.Dtos.ReportRequestDto;
+import com.example.Smart_Eye_Care_be.Dtos.ReportUpdateDto;
 import com.example.Smart_Eye_Care_be.Models.DoctorModel;
 import com.example.Smart_Eye_Care_be.Models.PatientModel;
 import com.example.Smart_Eye_Care_be.Models.ReportImageModel;
@@ -85,6 +86,31 @@ public class ReportService {
         // Delete report
         reportRepo.delete(report);
     }
+
+
+    @Transactional
+    public ReportModel updateReport(Long reportId, ReportUpdateDto request) {
+        // Fetch the existing report
+        ReportModel report = reportRepo.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found"));
+
+        // Update basic fields
+        report.setPrediction(request.getPrediction());
+        report.setSeverity(request.getSeverity());
+        report.setDoctorPrescription(request.getDoctorPrescription());
+        report.setUpdatedAt(LocalDateTime.now());
+
+        // Delete the images requested for deletion
+        if (request.getDeleteImageIds() != null) {
+            for (Long imgId : request.getDeleteImageIds()) {
+                imageRepo.deleteById(imgId); // Delete from DB
+                report.getListImageIds().remove(imgId); // Remove reference from report
+            }
+        }
+
+        return reportRepo.save(report);
+    }
+
 
 
     // public List<ReportModel> getReportsByPatient(Long patientId) {
