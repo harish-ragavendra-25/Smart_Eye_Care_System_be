@@ -111,6 +111,33 @@ public class ReportService {
         return reportRepo.save(report);
     }
 
+    @Transactional
+    public ReportModel addImagesToReport(Long reportId, List<String> newImageUrls) {
+        // Fetch the report
+        ReportModel report = reportRepo.findById(reportId)
+                .orElseThrow(() -> new RuntimeException("Report not found: " + reportId));
+
+        if (newImageUrls == null || newImageUrls.isEmpty()) {
+            return report; // Nothing to add
+        }
+
+        // Save each new image and collect their IDs
+        for (String url : newImageUrls) {
+            ReportImageModel img = new ReportImageModel();
+            img.setImgUrl(url);
+            ReportImageModel savedImg = imageRepo.save(img);
+
+            // Add the image ID to the report's list
+            report.getListImageIds().add(savedImg.getId());
+        }
+
+        // Update the timestamp
+        report.setUpdatedAt(LocalDateTime.now());
+
+        // Save updated report
+        return reportRepo.save(report);
+    }
+
 
 
     // public List<ReportModel> getReportsByPatient(Long patientId) {

@@ -31,6 +31,13 @@ public class ReportController {
         return reportService.createReport(request);
     }
 
+    // Adding Images to the report
+    @PostMapping("/addImages/{id}")
+    public ReportModel addImagesToReport(@PathVariable Long id,@RequestBody List<String> imageUrls) {
+        return reportService.addImagesToReport(id, imageUrls);
+    }
+    
+
     @GetMapping("/{id}")
     public ReportModel getReport(@PathVariable Long id) {
         return reportService.getReportById(id);
