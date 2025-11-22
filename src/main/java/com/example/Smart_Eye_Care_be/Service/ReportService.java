@@ -138,7 +138,9 @@ public class ReportService {
         return reportRepo.save(report);
     }
 
-
+    public List<ReportModel> getReportsByPatientAndDoctor(Long patientId, Long doctorId) {
+        return reportRepo.findByPatient_PatientIdAndDoctor_DoctorId(patientId, doctorId);
+    }
 
     // public List<ReportModel> getReportsByPatient(Long patientId) {
     //     return reportRepo.findByPatient_PatientId(patientId);

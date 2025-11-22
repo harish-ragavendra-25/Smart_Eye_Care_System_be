@@ -36,6 +36,14 @@ public class ReportController {
     public ReportModel addImagesToReport(@PathVariable Long id,@RequestBody List<String> imageUrls) {
         return reportService.addImagesToReport(id, imageUrls);
     }
+
+    // Getting List of Report by Using Patient and Doctor Id
+    @GetMapping("/byPatientAndDoctor/{patientId}/{doctorId}")
+    public List<ReportModel> getReportsByPatientAndDoctor(
+            @PathVariable Long patientId,
+            @PathVariable Long doctorId) {
+        return reportService.getReportsByPatientAndDoctor(patientId, doctorId);
+    }
     
 
     @GetMapping("/{id}")
