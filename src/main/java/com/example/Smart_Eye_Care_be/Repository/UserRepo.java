@@ -9,6 +9,7 @@ import com.example.Smart_Eye_Care_be.Models.UserModel;
 
 @Repository
 public interface UserRepo extends JpaRepository<UserModel,Long> {
+    Optional<UserModel> findByUserName(String username);
     Optional<UserModel> findByEmail(String email);
     boolean existsByEmail(String email);
     boolean existsByEmailAndUserIdNot(String email, Long userId);

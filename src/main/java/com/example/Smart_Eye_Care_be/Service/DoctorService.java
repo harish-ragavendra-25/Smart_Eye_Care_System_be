@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.Smart_Eye_Care_be.Dtos.DoctorRequestDto;
 import com.example.Smart_Eye_Care_be.Dtos.DoctorResponseDto;
-import com.example.Smart_Eye_Care_be.Dtos.UserResponseDto;
 import com.example.Smart_Eye_Care_be.Models.DoctorModel;
 import com.example.Smart_Eye_Care_be.Models.UserModel;
 import com.example.Smart_Eye_Care_be.Repository.DoctorRepo;

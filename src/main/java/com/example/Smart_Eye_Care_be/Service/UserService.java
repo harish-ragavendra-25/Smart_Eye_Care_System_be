@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.Smart_Eye_Care_be.Dtos.UserRequestDto;
@@ -20,6 +21,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserService {
     
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
+
     @Autowired
     private final UserRepo userRepo;
 
@@ -47,7 +51,8 @@ public class UserService {
     private UserModel mapToEntity(UserRequestDto dto) {
         UserModel user = new UserModel();
         user.setUserName(dto.getUserName());
-        user.setPassword(dto.getPassword());
+        String hashedPassword = passwordEncoder.encode(dto.getPassword());
+        user.setPassword(hashedPassword);
         user.setEmail(dto.getEmail());
         user.setRole(validateRole(dto.getRole()));
         user.setCreatedAt(LocalDateTime.now());
@@ -67,6 +72,19 @@ public class UserService {
     }
 
 
+    public UserModel authenticate(String userName, String rawPassword) {
+
+        UserModel user = userRepo.findByUserName(userName)
+                .orElseThrow(() -> new RuntimeException("Invalid username"));
+
+        if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+            throw new RuntimeException("Invalid password");
+        }
+
+        return user;
+    }
+
+
     @Transactional
     public UserResponseDto createUser(UserRequestDto userReq){
         validateEmail(userReq.getEmail());
@@ -79,6 +97,26 @@ public class UserService {
         UserModel savedUser = userRepo.save(mapToEntity(userReq));
         return mapToResponse(savedUser);
     }
+
+    // public UserResponseDto login(String username, String rawPassword) {
+
+    //     UserModel user = userRepo.findByUsername(username)
+    //             .orElseThrow(() -> new RuntimeException("Invalid username"));
+
+    //     if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+    //         throw new RuntimeException("Invalid password");
+    //     }
+
+    //     return new UserResponseDto(
+    //             user.getUserId(),
+    //             user.getUsername(),
+    //             user.getEmail(),
+    //             user.getRole(),
+    //             user.getCreatedAt(),
+    //             user.getUpdatedAt()
+    //     );
+    // }
+
 
     public List<UserResponseDto> getAllUsers() {
         return userRepo.findAll()
