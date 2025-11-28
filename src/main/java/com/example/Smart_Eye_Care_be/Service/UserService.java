@@ -98,26 +98,6 @@ public class UserService {
         return mapToResponse(savedUser);
     }
 
-    // public UserResponseDto login(String username, String rawPassword) {
-
-    //     UserModel user = userRepo.findByUsername(username)
-    //             .orElseThrow(() -> new RuntimeException("Invalid username"));
-
-    //     if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
-    //         throw new RuntimeException("Invalid password");
-    //     }
-
-    //     return new UserResponseDto(
-    //             user.getUserId(),
-    //             user.getUsername(),
-    //             user.getEmail(),
-    //             user.getRole(),
-    //             user.getCreatedAt(),
-    //             user.getUpdatedAt()
-    //     );
-    // }
-
-
     public List<UserResponseDto> getAllUsers() {
         return userRepo.findAll()
                 .stream()

@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.Smart_Eye_Care_be.Models.UserModel;
@@ -11,13 +12,15 @@ import com.example.Smart_Eye_Care_be.Models.UserModel;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import lombok.RequiredArgsConstructor;
 
 @Service
-@RequiredArgsConstructor
 public class JwtService {
 
-    private static final String SECRET_KEY = "your-very-secure-secret-key-should-be-256bit";
+    private final String SECRET_KEY;
+
+    public JwtService(@Value("${jwt.secret}") String secretKey) {
+        this.SECRET_KEY = secretKey;
+    }
 
     public String generateToken(UserModel user) {
         return Jwts.builder()
