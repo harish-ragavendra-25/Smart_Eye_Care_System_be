@@ -2,6 +2,7 @@ package com.example.Smart_Eye_Care_be.Controller;
 
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +25,19 @@ import lombok.RequiredArgsConstructor;
 public class DoctorController {
     
     private final DoctorService doctorService;
-
+    
+    @PreAuthorize("hasRole('DOCTOR')")
+    @GetMapping("/dash")
+    public String doctorDashboard() {
+        return "Welcome, Doctor!";
+    }
+    
     @PostMapping("/create")
     public DoctorResponseDto create(@RequestBody DoctorRequestDto doc) {
         return doctorService.createDoctor(doc);
     }
-
+    
+    @PreAuthorize("hasRole('DOCTOR')")
     @GetMapping("/{id}")
     public DoctorResponseDto get(@PathVariable Long id) {
         return doctorService.getDoctor(id);

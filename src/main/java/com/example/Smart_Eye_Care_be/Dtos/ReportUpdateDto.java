@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReportUpdateDto {
-        private String prediction;
+    private String prediction;
     private String severity;
     private String doctorPrescription;
     private List<Long> deleteImageIds;

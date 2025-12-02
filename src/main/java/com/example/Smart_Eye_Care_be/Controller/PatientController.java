@@ -2,7 +2,7 @@ package com.example.Smart_Eye_Care_be.Controller;
 
 import java.util.List;
 
-import org.springframework.stereotype.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +17,6 @@ import com.example.Smart_Eye_Care_be.Dtos.PatientResponseDto;
 import com.example.Smart_Eye_Care_be.Repository.PatientRepo;
 import com.example.Smart_Eye_Care_be.Service.PatientService;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -33,6 +32,7 @@ public class PatientController {
         return patientService.createPatient(req);
     }
 
+    @PreAuthorize("hasRole('DOCTOR','ADMIN')")
     @GetMapping
     public List<PatientResponseDto> getAll() {
         return patientService.getAllPatients();
