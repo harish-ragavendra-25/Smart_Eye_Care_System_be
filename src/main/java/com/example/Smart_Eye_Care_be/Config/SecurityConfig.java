@@ -27,7 +27,8 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()  // login & register open
+                    .requestMatchers("/api/auth/**").permitAll()
+                    .requestMatchers("/api/images/**").permitAll()// login & register open
                     .requestMatchers("/api/patient/**").permitAll()
                     .requestMatchers("/api/admin/**").hasAnyRole("USER", "DOCTOR", "ADMIN")
                     .requestMatchers("/api/doctors/**").hasAnyRole("USER", "DOCTOR", "ADMIN")
