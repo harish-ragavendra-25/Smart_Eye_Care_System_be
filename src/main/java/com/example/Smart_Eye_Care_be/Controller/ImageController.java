@@ -11,6 +11,8 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/images")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+
 public class ImageController {
 
     @Autowired

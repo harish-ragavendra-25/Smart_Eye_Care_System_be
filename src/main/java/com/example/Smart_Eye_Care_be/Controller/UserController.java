@@ -2,9 +2,11 @@ package com.example.Smart_Eye_Care_be.Controller;
 
 import java.util.List;
 
+import com.example.Smart_Eye_Care_be.Config.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.Smart_Eye_Care_be.Dtos.UserRequestDto;
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
+
 @RequestMapping("/api/users")
 public class UserController {
     
@@ -33,10 +36,6 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-
-
-
-    
     @GetMapping("/{id}")
     public UserResponseDto getUser(@PathVariable Long id) {
         return userService.getUserById(id);

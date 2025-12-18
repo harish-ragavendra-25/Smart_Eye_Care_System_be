@@ -2,14 +2,7 @@ package com.example.Smart_Eye_Care_be.Controller;
 
 import java.util.List;
 
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.Smart_Eye_Care_be.Dtos.DoctorRequestDto;
 import com.example.Smart_Eye_Care_be.Dtos.DoctorResponseDto;
@@ -20,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("/api/doctors")
 @RequiredArgsConstructor
-// @CrossOrigin(origins="http://localhost:5173", allowCredentials="true")
+@CrossOrigin(origins="http://localhost:5173", allowCredentials="true")
 public class DoctorController {
     
     private final DoctorService doctorService;
