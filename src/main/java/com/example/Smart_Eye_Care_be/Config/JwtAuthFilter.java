@@ -36,7 +36,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         this.userRepo = userRepo;
         this.SECRET_KEY = secretKey;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -60,23 +59,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                     .getBody();
 
             String username = claims.getSubject();
-            String role = claims.get("role", String.class);
 
-            Optional<UserModel> optionalUser = userRepo.findByUserName(username);
-            if (optionalUser.isEmpty()) {
-                filterChain.doFilter(request, response);
-                return;
-            }
+            UserModel user = userRepo.findByUserName(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
-            UserModel user = optionalUser.get();
+            CustomUserDetails userDetails = new CustomUserDetails(user);
 
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(
-                            user, null,
-                            Collections.singleton(() -> "ROLE_" + role)
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
                     );
 
-            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            authToken.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (Exception e) {
@@ -85,4 +84,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
 }

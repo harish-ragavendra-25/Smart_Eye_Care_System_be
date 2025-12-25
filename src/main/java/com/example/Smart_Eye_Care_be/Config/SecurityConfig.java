@@ -25,28 +25,28 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/api/auth/**").permitAll()
-                    .requestMatchers("/api/images/**").permitAll()// login & register open
-                    .requestMatchers("/api/patient/**").permitAll()
-                    .requestMatchers("/api/admin/**").hasAnyRole("USER", "DOCTOR", "ADMIN")
-                    .requestMatchers("/api/doctors/**").hasAnyRole("USER", "DOCTOR", "ADMIN")
-                    .requestMatchers("/api/users/create").permitAll()
-                    .requestMatchers("/api/users/**").authenticated()
-                    .anyRequest().authenticated()
-            );
+                .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/images/**").permitAll()
+                        .requestMatchers("/api/patient/**").permitAll()
+                        .requestMatchers("/api/users/create").permitAll()
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers("/api/doctors/**").hasAnyRole("ADMIN", "DOCTOR")
+                        .requestMatchers("/api/report/**").hasAnyRole("DOCTOR", "ADMIN","PATIENT")
+                        .requestMatchers("/api/users/**").authenticated()
+                        .anyRequest().authenticated()
+                );
 
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

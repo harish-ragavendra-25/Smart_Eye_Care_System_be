@@ -2,74 +2,100 @@ package com.example.Smart_Eye_Care_be.Controller;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import com.example.Smart_Eye_Care_be.Dtos.ReportRequestDto;
-import com.example.Smart_Eye_Care_be.Dtos.ReportUpdateDto;
+import com.example.Smart_Eye_Care_be.Config.CustomUserDetails;
+import com.example.Smart_Eye_Care_be.Dtos.*;
+import com.example.Smart_Eye_Care_be.Models.DoctorModel;
 import com.example.Smart_Eye_Care_be.Models.ReportModel;
+import com.example.Smart_Eye_Care_be.Repository.DoctorRepo;
 import com.example.Smart_Eye_Care_be.Service.ReportService;
 
 import lombok.RequiredArgsConstructor;
 
-
 @RestController
 @RequestMapping("/api/report")
 @RequiredArgsConstructor
-
 @CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class ReportController {
 
     private final ReportService reportService;
+    private final DoctorRepo doctorRepo;
 
     @PostMapping("/create")
-    public ReportModel createReport(@RequestBody ReportRequestDto request) {
-        return reportService.createReport(request);
+    public ReportResponseDto createReport(@RequestBody ReportRequestDto req) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
+
+        ReportModel report =
+                reportService.createReport(req, user.getUsername());
+
+        return reportService.mapToResponse(report);
     }
 
-    // Adding Images to the report
-    @PostMapping("/addImages/{id}")
-    public ReportModel addImagesToReport(@PathVariable Long id,@RequestBody List<String> imageUrls) {
-        return reportService.addImagesToReport(id, imageUrls);
-    }
-
-    // Getting List of Report by Using Patient and Doctor Id
-    @GetMapping("/byPatientAndDoctor/{patientId}/{doctorId}")
-    public List<ReportModel> getReportsByPatientAndDoctor(
-            @PathVariable Long patientId,
-            @PathVariable Long doctorId) {
-        return reportService.getReportsByPatientAndDoctor(patientId, doctorId);
-    }
-
-    // Getting List of Report by using Patient Id
-    @GetMapping("/byPatient/{patientId}")
-    public List<ReportModel> getReportsByPatient(@PathVariable Long patientId) {
-        return reportService.getReportsByPatient(patientId);
-    }
-
-    // Getting List of Report by using Doctor Id
-    @GetMapping("/byDoctor/{doctorId}")
-    public List<ReportModel> getReportsByDoctor(@PathVariable Long doctorId) {
-        return reportService.getReportsByDoctor(doctorId);
-    }
-    
     @GetMapping("/{id}")
-    public ReportModel getReport(@PathVariable Long id) {
-        return reportService.getReportById(id);
-    }
-
-    @GetMapping("/")
-    public List<ReportModel> getAllReports() {
-        return reportService.getAllReports();
+    public ReportResponseDto getReport(@PathVariable Long id) {
+        return reportService.mapToResponse(
+                reportService.getReportById(id)
+        );
     }
 
     @PutMapping("/{id}")
-    public ReportModel UpdateReport(@PathVariable Long id, @RequestBody ReportUpdateDto request) {
-        return reportService.updateReport(id, request);
+    public ReportResponseDto updateReport(
+            @PathVariable Long id,
+            @RequestBody ReportUpdateDto dto
+    ) {
+        return reportService.mapToResponse(
+                reportService.updateReport(id, dto)
+        );
     }
 
     @DeleteMapping("/{id}")
     public String deleteReport(@PathVariable Long id) {
         reportService.deleteReport(id);
         return "Report deleted successfully";
+    }
+
+    @GetMapping("/byPatient/{patientId}")
+    public List<ReportResponseDto> getByPatient(@PathVariable Long patientId) {
+        return reportService.getReportsByPatient(patientId)
+                .stream()
+                .map(reportService::mapToResponse)
+                .toList();
+    }
+
+    @GetMapping("/byDoctor/{doctorId}")
+    public List<ReportResponseDto> getByDoctor(@PathVariable Long doctorId) {
+        return reportService.getReportsByDoctor(doctorId)
+                .stream()
+                .map(reportService::mapToResponse)
+                .toList();
+    }
+
+    @GetMapping("/byDoctor/me")
+    public List<ReportResponseDto> getMyReports() {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
+
+        DoctorModel doctor = doctorRepo
+                .findByUser_UserName(user.getUsername())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        return reportService.getReportsByDoctor(doctor.getDoctorId())
+                .stream()
+                .map(reportService::mapToResponse)
+                .toList();
+    }
+
+    @GetMapping
+    public List<ReportResponseDto> getAllReports() {
+        return reportService.getAllReports()
+                .stream()
+                .map(reportService::mapToResponse)
+                .toList();
     }
 }

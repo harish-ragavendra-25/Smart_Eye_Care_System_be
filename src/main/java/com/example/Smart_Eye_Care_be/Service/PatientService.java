@@ -26,10 +26,10 @@ public class PatientService {
 
 
     private PatientResponseDto mapToResponse(PatientModel p) {
+
         PatientResponseDto dto = new PatientResponseDto();
 
         dto.setPatientId(p.getPatientId());
-        dto.setUserId(p.getUser().getUserId());
         dto.setFirstName(p.getFirstName());
         dto.setLastName(p.getLastName());
         dto.setDateOfBirth(p.getDateOfBirth());
@@ -40,6 +40,7 @@ public class PatientService {
 
         return dto;
     }
+
 
     @Transactional
     public PatientResponseDto createPatient(PatientRequestDto req) {
@@ -102,5 +103,15 @@ public class PatientService {
 
         patientRepo.delete(existing);
         return "Patient deleted successfully";
+    }
+
+    public PatientResponseDto getPatientByUserId(Long userId) {
+
+        PatientModel patient = patientRepo.findByUser_UserId(userId)
+                .orElseThrow(() ->
+                        new RuntimeException("Patient profile not found for userId: " + userId)
+                );
+
+        return mapToResponse(patient);
     }
 }

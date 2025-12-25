@@ -26,14 +26,12 @@ public class DoctorService {
 
     private DoctorResponseDto mapToResponse(DoctorModel doc) {
         DoctorResponseDto res = new DoctorResponseDto();
+
         res.setDoctorId(doc.getDoctorId());
-        res.setUserId(doc.getUser().getUserId());
         res.setFirstName(doc.getFirstName());
         res.setLastName(doc.getLastName());
         res.setSpecialization(doc.getSpecialization());
         res.setContactNumber(doc.getContactNumber());
-        res.setCreatedAt(doc.getCreatedAt());
-        res.setUpdatedAt(doc.getUpdatedAt());
         return res;
     }
 
@@ -46,6 +44,11 @@ public class DoctorService {
         // check the doctor already found in the doctor table
         if (doctorRepo.existsByUser_UserId(req.getUserId())) {
             throw new IllegalArgumentException("Doctor already exists for userId: " + req.getUserId());
+        }
+        if (user.getRole() != UserModel.Role.DOCTOR) {
+            throw new IllegalArgumentException(
+                    "Cannot create Doctor profile. User is not a DOCTOR"
+            );
         }
 
         DoctorModel doc = new DoctorModel();

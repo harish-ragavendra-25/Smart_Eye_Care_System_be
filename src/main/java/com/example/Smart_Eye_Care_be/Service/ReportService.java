@@ -3,20 +3,12 @@ package com.example.Smart_Eye_Care_be.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 
-import com.example.Smart_Eye_Care_be.Dtos.ReportRequestDto;
-import com.example.Smart_Eye_Care_be.Dtos.ReportUpdateDto;
-import com.example.Smart_Eye_Care_be.Models.DoctorModel;
-import com.example.Smart_Eye_Care_be.Models.PatientModel;
-import com.example.Smart_Eye_Care_be.Models.ReportImageModel;
-import com.example.Smart_Eye_Care_be.Models.ReportModel;
-import com.example.Smart_Eye_Care_be.Repository.DoctorRepo;
-import com.example.Smart_Eye_Care_be.Repository.PatientRepo;
-import com.example.Smart_Eye_Care_be.Repository.ReportImageRepo;
-import com.example.Smart_Eye_Care_be.Repository.ReportRepo;
+import com.example.Smart_Eye_Care_be.Dtos.*;
+import com.example.Smart_Eye_Care_be.Models.*;
+import com.example.Smart_Eye_Care_be.Repository.*;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,31 +22,32 @@ public class ReportService {
     private final PatientRepo patientRepo;
     private final DoctorRepo doctorRepo;
 
+    // ================= CREATE REPORT =================
     @Transactional
-    public ReportModel createReport(ReportRequestDto request) {
+    public ReportModel createReport(ReportRequestDto req, String username) {
 
-        PatientModel patient = patientRepo.findById(request.getPatientId())
-                .orElseThrow(() -> new RuntimeException("Patient not found"));
-
-        DoctorModel doctor = doctorRepo.findById(request.getDoctorId())
+        DoctorModel doctor = doctorRepo
+                .findByUser_UserName(username)
                 .orElseThrow(() -> new RuntimeException("Doctor not found"));
 
+        PatientModel patient = patientRepo.findById(req.getPatientId())
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
 
         List<Long> imageIds = new ArrayList<>();
-        for (String url : request.getImageUrls()) {
-            ReportImageModel img = new ReportImageModel();
-            img.setImgUrl(url);
-            ReportImageModel savedImg = imageRepo.save(img);
-            imageIds.add(savedImg.getId());
+        if (req.getImageUrls() != null) {
+            for (String url : req.getImageUrls()) {
+                ReportImageModel img = new ReportImageModel();
+                img.setImgUrl(url);
+                imageIds.add(imageRepo.save(img).getId());
+            }
         }
 
-        // Create report with image IDs
         ReportModel report = new ReportModel();
-        report.setPatient(patient);
         report.setDoctor(doctor);
-        report.setPrediction(request.getPrediction());
-        report.setSeverity(request.getSeverity());
-        report.setDoctorPrescription(request.getDoctorPrescription());
+        report.setPatient(patient);
+        report.setPrediction(req.getPrediction());
+        report.setSeverity(req.getSeverity());
+        report.setDoctorPrescription(req.getDoctorPrescription());
         report.setListImageIds(imageIds);
         report.setCreatedAt(LocalDateTime.now());
         report.setUpdatedAt(LocalDateTime.now());
@@ -62,84 +55,14 @@ public class ReportService {
         return reportRepo.save(report);
     }
 
+    // ================= GET =================
     public ReportModel getReportById(Long id) {
         return reportRepo.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Report not found: " + id));
+                .orElseThrow(() -> new RuntimeException("Report not found"));
     }
 
     public List<ReportModel> getAllReports() {
         return reportRepo.findAll();
-    }
-
-    @Transactional
-    public void deleteReport(Long reportId) {
-        ReportModel report = reportRepo.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-
-        // Delete images first
-        if (report.getListImageIds() != null) {
-            for (Long imgId : report.getListImageIds()) {
-                imageRepo.deleteById(imgId);
-            }
-        }
-
-        // Delete report
-        reportRepo.delete(report);
-    }
-
-
-    @Transactional
-    public ReportModel updateReport(Long reportId, ReportUpdateDto request) {
-        // Fetch the existing report
-        ReportModel report = reportRepo.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found"));
-
-        // Update basic fields
-        report.setPrediction(request.getPrediction());
-        report.setSeverity(request.getSeverity());
-        report.setDoctorPrescription(request.getDoctorPrescription());
-        report.setUpdatedAt(LocalDateTime.now());
-
-        // Delete the images requested for deletion
-        if (request.getDeleteImageIds() != null) {
-            for (Long imgId : request.getDeleteImageIds()) {
-                imageRepo.deleteById(imgId); // Delete from DB
-                report.getListImageIds().remove(imgId); // Remove reference from report
-            }
-        }
-
-        return reportRepo.save(report);
-    }
-
-    @Transactional
-    public ReportModel addImagesToReport(Long reportId, List<String> newImageUrls) {
-        // Fetch the report
-        ReportModel report = reportRepo.findById(reportId)
-                .orElseThrow(() -> new RuntimeException("Report not found: " + reportId));
-
-        if (newImageUrls == null || newImageUrls.isEmpty()) {
-            return report; // Nothing to add
-        }
-
-        // Save each new image and collect their IDs
-        for (String url : newImageUrls) {
-            ReportImageModel img = new ReportImageModel();
-            img.setImgUrl(url);
-            ReportImageModel savedImg = imageRepo.save(img);
-
-            // Add the image ID to the report's list
-            report.getListImageIds().add(savedImg.getId());
-        }
-
-        // Update the timestamp
-        report.setUpdatedAt(LocalDateTime.now());
-
-        // Save updated report
-        return reportRepo.save(report);
-    }
-
-    public List<ReportModel> getReportsByPatientAndDoctor(Long patientId, Long doctorId) {
-        return reportRepo.findByPatient_PatientIdAndDoctor_DoctorId(patientId, doctorId);
     }
 
     public List<ReportModel> getReportsByPatient(Long patientId) {
@@ -148,5 +71,95 @@ public class ReportService {
 
     public List<ReportModel> getReportsByDoctor(Long doctorId) {
         return reportRepo.findByDoctor_DoctorId(doctorId);
+    }
+
+    // ================= UPDATE =================
+    @Transactional
+    public ReportModel updateReport(Long id, ReportUpdateDto dto) {
+
+        ReportModel report = getReportById(id);
+
+        report.setPrediction(dto.getPrediction());
+        report.setSeverity(dto.getSeverity());
+        report.setDoctorPrescription(dto.getDoctorPrescription());
+        report.setUpdatedAt(LocalDateTime.now());
+
+        if (dto.getDeleteImageIds() != null) {
+            for (Long imgId : dto.getDeleteImageIds()) {
+                imageRepo.deleteById(imgId);
+                report.getListImageIds().remove(imgId);
+            }
+        }
+
+        return reportRepo.save(report);
+    }
+
+    // ================= DELETE =================
+    @Transactional
+    public void deleteReport(Long id) {
+
+        ReportModel report = getReportById(id);
+
+        if (report.getListImageIds() != null) {
+            for (Long imgId : report.getListImageIds()) {
+                imageRepo.deleteById(imgId);
+            }
+        }
+
+        reportRepo.delete(report);
+    }
+
+    // ================= MAPPER =================
+    public ReportResponseDto mapToResponse(ReportModel report) {
+
+        ReportResponseDto dto = new ReportResponseDto();
+
+        dto.setReportId(report.getReportId());
+        dto.setPrediction(report.getPrediction());
+        dto.setSeverity(report.getSeverity());
+        dto.setDoctorPrescription(report.getDoctorPrescription());
+        dto.setCreatedAt(report.getCreatedAt());
+        dto.setUpdatedAt(report.getUpdatedAt());
+
+        // =====================================================
+        // 🔧 FIX #1 — PATIENT DTO (NO CONSTRUCTOR, ONLY SETTERS)
+        // =====================================================
+        PatientResponseDto patientDto = new PatientResponseDto();
+        patientDto.setPatientId(report.getPatient().getPatientId());
+        patientDto.setFirstName(report.getPatient().getFirstName());
+        patientDto.setLastName(report.getPatient().getLastName());
+        patientDto.setDateOfBirth(report.getPatient().getDateOfBirth());
+        patientDto.setContactNumber(report.getPatient().getContactNumber());
+        patientDto.setAddress(report.getPatient().getAddress());
+
+        dto.setPatient(patientDto);
+
+        // =====================================================
+        // 🔧 FIX #2 — DOCTOR DTO (ALREADY CORRECT)
+        // =====================================================
+        DoctorResponseDto doctorDto = new DoctorResponseDto();
+        doctorDto.setDoctorId(report.getDoctor().getDoctorId());
+        doctorDto.setFirstName(report.getDoctor().getFirstName());
+        doctorDto.setLastName(report.getDoctor().getLastName());
+        doctorDto.setSpecialization(report.getDoctor().getSpecialization());
+        doctorDto.setContactNumber(report.getDoctor().getContactNumber());
+
+        dto.setDoctor(doctorDto);
+
+        // =====================================================
+        // 🔧 FIX #3 — IMAGE DTOs
+        // =====================================================
+        List<ReportImageDto> images = report.getListImageIds().stream()
+                .map(id -> {
+                    ReportImageModel img = imageRepo.findById(id).orElseThrow();
+                    ReportImageDto i = new ReportImageDto();
+                    i.setId(img.getId());
+                    i.setImgUrl(img.getImgUrl());
+                    return i;
+                }).toList();
+
+        dto.setImages(images);
+
+        return dto;
     }
 }
